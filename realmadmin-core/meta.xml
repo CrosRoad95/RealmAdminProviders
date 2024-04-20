@@ -1,0 +1,40 @@
+<meta>
+	<script src="c.lua" type="client" />
+	<script src="configuration.lua" type="server" />
+	<script src="socket.lua" type="server" />
+	<script src="hub.lua" type="server" />
+	<script src="s.lua" type="server" />
+	<script src="functionality/common.lua" type="server" />
+	<script src="functionality/overview.lua" type="server" />
+	<script src="functionality/players.lua" type="server" />
+	<script src="functionality/resources.lua" type="server" />
+	<script src="functionality/statistics.lua" type="server" />
+	<script src="functionality/vehicles.lua" type="server" />
+
+	<export function="addInterfaceResource" type="server" />
+
+	<export function="overviewAddTextWidget" type="server" />
+	<export function="overviewSetWidgetTitle" type="server" />
+
+	<export function="playersAddRowButtonAction" type="server" />
+	<export function="playersSetCustomColumns" type="server" />
+	<export function="playersAddPlayer" type="server" />
+	<export function="playersRemovePlayer" type="server" />
+	<export function="playersSetData" type="server" />
+	<export function="playersSetPlayerName" type="server" />
+	
+	<export function="vehiclesAddVehicle" type="server" />
+	<export function="vehiclesAddAllVehicles" type="server" />
+	<export function="vehiclesSetKinds" type="server" />
+
+	<export function="resourcesAddAllResources" type="server" />
+	<export function="resourcesAddResource" type="server" />
+	<export function="resourcesRemoveResources" type="server" />
+	<export function="resourcesRemoveResource" type="server" />
+	<export function="resourcesSetResourceState" type="server" />
+	<export function="resourcesConfigureDefaultListener" type="server" />
+
+	<export function="statisticsPlayerCountReport" type="server" />
+
+	<export function="isSystemCaller" type="server" />
+</meta>
