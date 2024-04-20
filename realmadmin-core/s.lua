@@ -77,7 +77,7 @@ end
 
 addEventHandler("onResourceStart", resourceRoot, function()
     dprint("Łączenie...");
-    addInterfaceResource("core", "bla bla bla");
+    addInterfaceResource("core", "Główny zasób obsługując połączenie do panelu.");
     connect();
 end)
 
