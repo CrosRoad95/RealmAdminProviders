@@ -22,10 +22,22 @@ function addInterfaceResource(name, description)
     end
 
     providers[resource] = {name = name, description = description}
-
-    addEventHandler("onResourceStop", getResourceRootElement(resource), function(resource)
-        providers[resource] = nil;
+    dprint("Zarejestrowano zasób '"..getResourceName(resource).."' z dostawców funkcjonalności.");
+    
+    addEventHandler("onResourceStop", getResourceRootElement(resource), function(_)
+        if(providers[resource])then
+            dprint("Odrejectrowano zasób '"..getResourceName(resource).."' z dostawców funkcjonalności.");
+            providers[resource] = nil;
+            return invokeWrapper("RemoveProvider", {
+                resource = getResourceName(resource)
+            }, resource);
+        end
     end);
+    
+    return invokeWrapper("AddProvider", {
+        resource = getResourceName(resource),
+        description = description
+    }, resource);
 end
 
 function broadcastEvent(eventName, ...)
@@ -77,7 +89,6 @@ end
 
 addEventHandler("onResourceStart", resourceRoot, function()
     dprint("Łączenie...");
-    addInterfaceResource("core", "Główny zasób obsługując połączenie do panelu.");
     connect();
 end)
 
@@ -85,8 +96,8 @@ function isSystemCaller(id)
     return id == -1;
 end
 
-function invokeWrapper(target, model)
-    model.source = getResourceName(sourceResource or getThisResource());
+function invokeWrapper(target, model, source)
+    model.source = getResourceName(source or sourceResource or getThisResource());
     model.requestId = generateRequestId();
     invoke(target, model);
     return model.requestId;

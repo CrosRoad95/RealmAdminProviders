@@ -13,6 +13,7 @@ end
 hubOn("Connected", function()
     connected = true;
     dprint("Autoryzacja przebiegła pomyślnie.");
+    addInterfaceResource("core", "Główny zasób obsługując połączenie do panelu.");
     triggerEvent("onRealmAdminConnected", root);
 end)
 

@@ -1,17 +1,34 @@
-local function getPlayerName()
-    return "Fake NAME"
+local _getPlayerName = getPlayerName;
+local _getPlayerSerial = getPlayerSerial;
+local _getPlayerIP = getPlayerIP;
+local _getPlayerVersion = getPlayerVersion;
+
+local function getPlayerName(player)
+    if(getElementType(player) == "player")then
+        return _getPlayerName(player);
+    end
+    return "<unknown>";
 end
 
-local function getPlayerSerial()
-    return "Fake SERIAL"
+local function getPlayerSerial(player)
+    if(getElementType(player) == "player")then
+        return _getPlayerSerial(player);
+    end
+    return "<unknown>";
 end
 
-local function getPlayerIP()
-    return "Fake IP"
+local function getPlayerIP(player)
+    if(getElementType(player) == "player")then
+        return _getPlayerIP(player);
+    end
+    return "<unknown>";
 end
 
-local function getPlayerVersion()
-    return "Fake VERSION"
+local function getPlayerVersion(player)
+    if(getElementType(player) == "player")then
+        return _getPlayerVersion(player);
+    end
+    return "<unknown>";
 end
 
 function playersAddRowButtonAction(actionName, callbackEventName)

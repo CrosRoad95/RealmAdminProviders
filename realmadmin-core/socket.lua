@@ -21,6 +21,14 @@ local nextInvocationId = 0;
 local subscribedEvents = {};
 local buffer = "";
 local bufferSplitMatch = "([^"..recordSeparator.."]+)";
+local server, serverPort;
+if(configuration.isDevelopment)then
+    server = "localhost";
+    serverPort = 5555;
+else
+    server = "83.168.69.118";
+    serverPort = 5555;
+end
 
 local messageType = {
     invocation = 1,
@@ -143,7 +151,9 @@ end
 
 function sendPacket(packet)
     local rawPacket = serialize(packet);
-    --dprint("Packet:", #rawPacket)
+    if(configuration.debugPrint)then
+        dprint("sendPacket:", #rawPacket, rawPacket)
+    end
     sockWrite(socket, rawPacket)
 end
 
@@ -162,7 +172,10 @@ function connect(reconnecting)
         dprint("Zbyt dużo prób połączenia ("..maxAttempts.."), przerwano połączenie. Zresetuj zasób aby spróbować ponownie.");
         return;
     end
-    openingSocket = sockOpen('localhost', 5555);
+    if(configuration.isDevelopment)then
+        dprint("Włączono tryb developerski")
+    end
+    openingSocket = sockOpen(server, serverPort);
     timeoutTimer = setTimer(function()
         if(not reconnecting)then
             attemptCount = attemptCount + 1;
@@ -254,7 +267,9 @@ function handlePacket(rawData)
 end
 
 addEventHandler('onSockData', root, function(_, bytes)
-    --dprint("Otrzymane dane:", bytes);
+    if(configuration.debugPrint)then
+        dprint("onSockData:", bytes);
+    end
     buffer = buffer..bytes;
     local readBytes = 0;
     for rawPacket in string.gmatch(buffer, bufferSplitMatch) do
@@ -264,7 +279,7 @@ addEventHandler('onSockData', root, function(_, bytes)
         end
     end
     buffer = string.sub(buffer, readBytes + 1);
-end)
+end);
 
 addEventHandler("onConnectioneEstablished", resourceRoot, function(state)
     dprint("Połączono pomyślnie. Rozpoczęto autoryzację...");
@@ -274,7 +289,5 @@ addEventHandler("onConnectioneEstablished", resourceRoot, function(state)
         serverId = configuration.serverId,
         apiKey = configuration.apiKey,
         version = version
-    })
-
-    startResource(getResourceFromName("realmadmin-test-provider"))
+    });
 end)

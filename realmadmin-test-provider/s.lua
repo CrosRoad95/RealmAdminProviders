@@ -10,7 +10,7 @@ addEventHandler("onRealmAdminError", resourceRoot, function(source, requestId, m
 end)
 
 addEventHandler("onRealmAdminConnected", root, function()
-    iprint("starting test provider...", getTickCount())
+    iprint("starting test provider at", getTickCount())
     local admin = exports["realmadmin-core"]
 
     admin:addInterfaceResource("test-provider", "dodaje testowe funkconalności");

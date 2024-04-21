@@ -1,6 +1,6 @@
 local isDefaultListenerConfigured = false;
 
-local function getResourceDescription(resource)
+local function getResourceDescription(resource, source)
     verifyIsAddedInterface();
 
     local resourceDescription = {
@@ -10,7 +10,9 @@ local function getResourceDescription(resource)
         lastFailureReason = getResourceLoadFailureReason(resource),
         exports = getResourceExportedFunctions(resource),
         commands = getCommandHandlers(resource),
-        infoType = getResourceInfo(resource, "type") or "-"
+        infoType = getResourceInfo(resource, "type") or "-",
+        source = getResourceName(source),
+        requestId = 0,
     };
     
     return resourceDescription;
@@ -19,9 +21,10 @@ end
 function resourcesAddAllResources()
     verifyIsAddedInterface();
 
+    invokeWrapper("ResourcesRemoveAll", {}, sourceResource);
     local resources = {}
     for i,resource in ipairs(getResources())do
-        local resourceDescription = getResourceDescription(resource);
+        local resourceDescription = getResourceDescription(resource, sourceResource);
         table.insert(resources, resourceDescription);
         if(#resources > 4)then
             invokeWrapper("ResourcesAddResources", {
@@ -30,9 +33,12 @@ function resourcesAddAllResources()
             resources = {};
         end
     end
-    invokeWrapper("ResourcesAddResources", {
-        resources = resources
-    });
+
+    if(#resources > 0)then
+        invokeWrapper("ResourcesAddResources", {
+            resources = resources
+        }, sourceResource);
+    end
     return true;
 end
 
@@ -64,28 +70,29 @@ function resourcesRemoveResource(resource)
     });
 end
 
-function resourcesSetResourceState(resource, newState)
+function resourcesSetResourceState(resource, newState, source)
     verifyIsAddedInterface();
 
     return invokeWrapper("ResourcesSetResourceState", {
         name = getResourceName(resource),
         state = newState
-    });
+    }, source);
 end
 
 function resourcesConfigureDefaultListener()
     verifyIsAddedInterface();
 
+    local sourceResource = sourceResource;
     if(isDefaultListenerConfigured)then
         return false;
     end
     isDefaultListenerConfigured = true;
     addEventHandler("onResourceStart", root, function(resource)
-        resourcesSetResourceState(resource, "running")
+        resourcesSetResourceState(resource, "running", sourceResource)
     end);
 
     addEventHandler("onResourceStop", root, function(resource)
-        resourcesSetResourceState(resource, "loaded")
+        resourcesSetResourceState(resource, "loaded", sourceResource)
     end);
 
     return true;
