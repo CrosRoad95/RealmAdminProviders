@@ -10,7 +10,7 @@ addEventHandler("onRealmAdminError", resourceRoot, function(source, requestId, m
 end)
 
 addEventHandler("onRealmAdminConnected", root, function()
-    iprint("starting test provider at", getTickCount())
+    iprint("Starting test provider at", getTickCount())
     local admin = exports["realmadmin-core"]
 
     admin:addInterfaceResource("test-provider", "dodaje testowe funkconalności");
@@ -25,12 +25,7 @@ addEventHandler("onRealmAdminConnected", root, function()
 
     admin:playersAddRowButtonAction("kick", "realmAdminHandleKick")
     admin:playersAddRowButtonAction("zabierz prawko", "realmAdminHandleTakeLicense")
-    admin:playersSetCustomColumns({
-        {
-            ["key"] = "prawko",
-            ["name"] = "Prawo jazdy",
-        }
-    })
+
     admin:playersAddPlayer(fakePlayer1, {
         ["prawko"] = "tak",
     })
@@ -62,6 +57,20 @@ addEventHandler("onRealmAdminConnected", root, function()
         count = count + 1;
         admin:statisticsPlayerCountReport(count);
     end, 1000, 10)
+end)
+
+addCommandHandler("add", function()
+    local admin = exports["realmadmin-core"];
+    admin:playersAddCustomColumn(
+    {
+        ["key"] = "prawko",
+        ["name"] = "Prawo jazdy",
+    })
+end)
+
+addCommandHandler("remove", function()
+    local admin = exports["realmadmin-core"];
+    admin:playersRemoveCustomColumn("prawko")
 end)
 
 addEvent("realmAdminHandleKick")

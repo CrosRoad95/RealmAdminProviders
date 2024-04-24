@@ -41,11 +41,19 @@ function playersAddRowButtonAction(actionName, callbackEventName)
     });
 end
 
-function playersSetCustomColumns(columns)
+function playersAddCustomColumn(column)
     verifyIsAddedInterface();
 
-    return invokeWrapper("PlayersSetCustomColumns", {
-        columns = columns
+    return invokeWrapper("PlayersAddCustomColumn", {
+        column = column
+    });
+end
+
+function playersRemoveCustomColumn(key)
+    verifyIsAddedInterface();
+
+    return invokeWrapper("PlayersRemoveCustomColumn", {
+        key = key
     });
 end
 
@@ -53,6 +61,7 @@ function playersAddPlayer(player, data)
     if(type(player) ~= "userdata" and getElementType(player) ~= "player")then
         error("Player is invalid.")
     end
+
     verifyIsAddedInterface();
 
     return invokeWrapper("PlayersAddPlayer", {

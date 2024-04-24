@@ -4,6 +4,12 @@ addEvent("onRealmAdminInvokeResourceStop");
 addEvent("onRealmAdminInvokeResourceStart");
 addEvent("onRealmAdminInvokeResourceRestart");
 addEvent("onRealmAdminInvokeResourceRefresh");
+addEvent("onRealAdminUserOpened");
+addEvent("onRealAdminUserClosed");
+
+function isConnected()
+    return connected;
+end
 
 function hubOn(method, callback)
     assert(not hub[method]);
@@ -12,7 +18,7 @@ end
 
 hubOn("Connected", function()
     connected = true;
-    dprint("Autoryzacja przebiegła pomyślnie.");
+    raprint("Autoryzacja przebiegła pomyślnie.");
     addInterfaceResource("core", "Główny zasób obsługując połączenie do panelu.");
     triggerEvent("onRealmAdminConnected", root);
 end)
@@ -22,11 +28,11 @@ hubOn("Error", function(source, requestId, message)
 end)
 
 hubOn("Rejected", function(message)
-    outputDebugString(message, 1)
+    raprint(message)
 end)
 
 hubOn("Print", function(message)
-    dprint("Print:", message)
+    raprint("Print:", message)
 end)
 
 hubOn("InvokePlayerAddRowAction", function(caller, playerIdRef, eventName, sourceResourceName)
@@ -50,4 +56,17 @@ end)
 
 hubOn("InvokeResourceRestart", function(caller, resourceName)
     triggerEvent("onRealmAdminInvokeResourceRestart", root, caller, resourceName)
+end)
+
+hubOn("UserOpened", function(userId)
+    triggerEvent("onRealAdminUserOpened", root, userId);
+end)
+
+hubOn("UserClosed", function(userId)
+    triggerEvent("onRealAdminUserClosed", root, userId);
+end)
+
+hubOn("VersionMismatch", function(currentVersion, expectedVersion)
+    raprint("Uwaga: Posiadasz złą wersje zasobu realmadmin-core, twoja wersja to: v"..currentVersion..", podczas gdy oczekiwana wersja to: v"..expectedVersion)
+    raprint("Pobierz odpowiednią wersje ( v"..expectedVersion.." ) ze strony: https://github.com/CrosRoad95/RealmAdminProviders/tags");
 end)

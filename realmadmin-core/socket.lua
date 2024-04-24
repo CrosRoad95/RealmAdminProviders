@@ -10,7 +10,7 @@ local lastPing = 0;
 local reconnectTimer = nil;
 local timeoutTimer = nil;
 local attemptCount = 0;
-local maxAttempts = 50000;
+local maxAttempts = 10;
 local reconnectInterval = 5000; -- In miliseconds
 local reconnectTimeout = 1500; -- In miliseconds
 local recordSeparatorCode = 30;
@@ -25,6 +25,7 @@ local server, serverPort;
 if(configuration.isDevelopment)then
     server = "localhost";
     serverPort = 5555;
+    maxAttempts = 50000;
 else
     server = "83.168.69.118";
     serverPort = 5555;
@@ -51,7 +52,7 @@ addEvent("onRealmAdminDisconnected");
 addEvent("onRealmAdminError");
 
 addEventHandler("onSocketStateChanged", resourceRoot, function(state)
-    dprint("Zmieniono stan połączenia na:", state)
+    raprint("Zmieniono stan połączenia na:", state)
     if (reconnectTimer and isTimer(reconnectTimer))then
         killTimer(reconnectTimer)
         reconnectTimer = nil
@@ -68,7 +69,7 @@ addEventHandler("onSocketStateChanged", resourceRoot, function(state)
         connectionEstablished = false;
         socket = nil;
         attemptCount = 0;
-        dprint("Połączenie zostało zamknięte, nastąpi próba ponownego połączenia");
+        raprint("Połączenie zostało zamknięte, nastąpi próba ponownego połączenia");
         triggerEvent("onRealmAdminDisconnected", root);
         reconnectTimer = setTimer(function()
             connect(true)
@@ -82,7 +83,7 @@ function createId()
 end
 
 addEventHandler("onSocketError", resourceRoot, function(err)
-    dprint("Socket error:", err)
+    raprint("Socket error:", err)
 end)
 
 function createArguments(...)
@@ -152,7 +153,7 @@ end
 function sendPacket(packet)
     local rawPacket = serialize(packet);
     if(configuration.debugPrint)then
-        dprint("sendPacket:", #rawPacket, rawPacket)
+        raprint("sendPacket:", #rawPacket, rawPacket)
     end
     sockWrite(socket, rawPacket)
 end
@@ -169,18 +170,18 @@ function connect(reconnecting)
     end
 
     if(attemptCount > maxAttempts)then
-        dprint("Zbyt dużo prób połączenia ("..maxAttempts.."), przerwano połączenie. Zresetuj zasób aby spróbować ponownie.");
+        raprint("Zbyt dużo prób połączenia ("..maxAttempts.."), przerwano połączenie. Zresetuj zasób aby spróbować ponownie.");
         return;
     end
     if(configuration.isDevelopment)then
-        dprint("Włączono tryb developerski")
+        raprint("Włączono tryb developerski")
     end
     openingSocket = sockOpen(server, serverPort);
     timeoutTimer = setTimer(function()
         if(not reconnecting)then
             attemptCount = attemptCount + 1;
         end
-        dprint("Błąd podczas połączenia (próba: "..attemptCount..")! Trwa próba ponownego połączenia...");
+        raprint("Błąd podczas połączenia (próba: "..attemptCount..")! Trwa próba ponownego połączenia...");
         connect(true);
     end, reconnectInterval, 1);
 end
@@ -225,16 +226,19 @@ function handlePacket(rawData)
 
     local t = data["type"]
     if (type(t) ~= "number")then
-        dprint("Wystąpił błąd podczas odczytu pakietu, pole 'type' jest typem '"..type(t).."' a powinien być typem 'number'", inspect(data))
+        raprint("Wystąpił błąd podczas odczytu pakietu, pole 'type' jest typem '"..type(t).."' a powinien być typem 'number'", inspect(data))
         return;
     end
 
     if (t == messageType.invocation) then
         local target = hub[data.target];
         if (target) then
-            local result, err = pcall(target, unpack(data.arguments))
+            local succeed, err = pcall(target, unpack(data.arguments))
+            if(not succeed)then
+                raprint("Wystąpił problem podczas wykonywania metody: '"..tostring(data.target).."', "..err);
+            end
         else
-            dprint("Problem podczas wykonywania metody: '"..tostring(data.target).."'")
+            raprint("Wystąpił problem podczas wykonywania metody: '"..tostring(data.target).."', metoda nie istnieje");
         end
         return;
     elseif(t == messageType.streamItem)then
@@ -254,7 +258,7 @@ function handlePacket(rawData)
     elseif(t == messageType.ping)then
         local interval = getTickCount() -lastPing;
         if (interval > 20000) then -- Usually takes 15000ms
-            dprint("Ping trwał zbyt długo!", interval);
+            raprint("Ping trwał zbyt długo!", interval);
         end
         lastPing = getTickCount()
         return;
@@ -262,13 +266,13 @@ function handlePacket(rawData)
         sockClose(socket)
         setSocketState("closed")
     else
-        dprint("Otrzymano niezaimplementowany typ pakietu: ", t);
+        raprint("Otrzymano niezaimplementowany typ pakietu: ", t);
     end
 end
 
 addEventHandler('onSockData', root, function(_, bytes)
     if(configuration.debugPrint)then
-        dprint("onSockData:", bytes);
+        raprint("onSockData:", bytes);
     end
     buffer = buffer..bytes;
     local readBytes = 0;
@@ -282,7 +286,7 @@ addEventHandler('onSockData', root, function(_, bytes)
 end);
 
 addEventHandler("onConnectioneEstablished", resourceRoot, function(state)
-    dprint("Połączono pomyślnie. Rozpoczęto autoryzację...");
+    raprint("Połączono pomyślnie. Rozpoczęto autoryzację...");
 
     -- Test logic:
     invokeWrapper("Authenticate", {

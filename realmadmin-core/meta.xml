@@ -17,7 +17,8 @@
 	<export function="overviewSetWidgetTitle" type="server" />
 
 	<export function="playersAddRowButtonAction" type="server" />
-	<export function="playersSetCustomColumns" type="server" />
+	<export function="playersAddCustomColumn" type="server" />
+	<export function="playersRemoveCustomColumn" type="server" />
 	<export function="playersAddPlayer" type="server" />
 	<export function="playersRemovePlayer" type="server" />
 	<export function="playersSetData" type="server" />
@@ -37,4 +38,5 @@
 	<export function="statisticsPlayerCountReport" type="server" />
 
 	<export function="isSystemCaller" type="server" />
+	<export function="isRegisteredAsInterfaceResource" type="server" />
 </meta>

@@ -5,11 +5,15 @@ local refByUserData = {}
 local userDataByRef = {}
 local providers = {}
 
+function isRegisteredAsInterfaceResource(resource)
+    return providers[resource] and true or false;
+end
+
 function addInterfaceResource(name, description)
     local resource = sourceResource or getThisResource();
-    if(providers[resource])then
-        error("Zasób: '"..getResourceName(resource).."' jest już zarejestrowany jako dostawca funkcjonalności.");
-    end
+    -- if(providers[resource])then
+    --     return false;
+    -- end
 
     if(type(name) ~= "string")then
         error("Nazwa zasobu musi być string'iem");
@@ -17,26 +21,31 @@ function addInterfaceResource(name, description)
     if(type(description) ~= "string")then
         error("Opis zasobu musi być string'iem");
     end
-    if(providers[resource])then
-        error("Zasób już został zarejestrowany jako dostawca funkcjonalności.");
-    end
 
-    providers[resource] = {name = name, description = description}
-    dprint("Zarejestrowano zasób '"..getResourceName(resource).."' z dostawców funkcjonalności.");
+    providers[resource] = {
+        name = name,
+        description = description
+    };
+
+    raprint("Zarejestrowano zasób '"..getResourceName(resource).."' z dostawców funkcjonalności.");
     
+    local name = name;
+
     addEventHandler("onResourceStop", getResourceRootElement(resource), function(_)
         if(providers[resource])then
-            dprint("Odrejectrowano zasób '"..getResourceName(resource).."' z dostawców funkcjonalności.");
+            raprint("Odrejestrowano zasób '"..getResourceName(resource).."' z dostawców funkcjonalności.");
             providers[resource] = nil;
             return invokeWrapper("RemoveProvider", {
-                resource = getResourceName(resource)
+                name = name
             }, resource);
         end
     end);
     
     return invokeWrapper("AddProvider", {
         resource = getResourceName(resource),
-        description = description
+        name = name,
+        description = description,
+        addedAt = getRealTime().timestamp
     }, resource);
 end
 
@@ -67,7 +76,7 @@ function generateRequestId()
     return requestId;
 end
 
-function dprint(...)
+function raprint(...)
     print("[RealmAdmin]", ...);
 end
 
@@ -88,7 +97,7 @@ function derefCache(userData)
 end
 
 addEventHandler("onResourceStart", resourceRoot, function()
-    dprint("Łączenie...");
+    raprint("Łączenie...");
     connect();
 end)
 
@@ -104,13 +113,9 @@ function invokeWrapper(target, model, source)
 end
 
 function handleResourceStarted()
-    triggerEvent("onRealmAdminConnected", source)
+    if(isConnected())then
+        triggerEvent("onRealmAdminConnected", source)
+    end
 end
 
-addEventHandler("onRealmAdminConnected", resourceRoot, function()
-    addEventHandler("onResourceStart", root, handleResourceStarted);
-end)
-
-addEventHandler("onRealmAdminDisconnected", resourceRoot, function()
-    removeEventHandler("onResourceStart", root, handleResourceStarted);
-end)
+addEventHandler("onResourceStart", root, handleResourceStarted);
