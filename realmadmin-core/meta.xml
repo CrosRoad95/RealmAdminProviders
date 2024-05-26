@@ -1,4 +1,6 @@
 <meta>
+    <info name="RealmAdmin Core" author="CrosRoad95" version="0.0.0" type="script" description="Provide connection between mta server and realmadmin panel"></info>
+
 	<script src="c.lua" type="client" />
 	<script src="configuration.lua" type="server" />
 	<script src="socket.lua" type="server" />
@@ -11,8 +13,13 @@
 	<script src="functionality/statistics.lua" type="server" />
 	<script src="functionality/vehicles.lua" type="server" />
 
+	<export function="isDevelopment" type="server" />
+	
 	<export function="addInterfaceResource" type="server" />
 
+	<export function="removeAllPlayers" type="server" />
+	<export function="removeAllVehicles" type="server" />
+	
 	<export function="overviewAddTextWidget" type="server" />
 	<export function="overviewSetWidgetTitle" type="server" />
 

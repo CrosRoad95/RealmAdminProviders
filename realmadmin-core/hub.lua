@@ -27,6 +27,10 @@ hubOn("Error", function(source, requestId, message)
     broadcastEvent("onRealmAdminError", source, requestId, message);
 end)
 
+hubOn("Success", function(source, requestId, message)
+    broadcastEvent("onRealmAdminSuccess", source, requestId, message);
+end)
+
 hubOn("Rejected", function(message)
     raprint(message)
 end)

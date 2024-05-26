@@ -5,34 +5,34 @@ setElementData(fakePlayer1, "name", "fakePlayer1");
 setElementData(fakePlayer2, "name", "fakePlayer2");
 setElementData(fakePlayer3, "name", "fakePlayer2");
 
-addEventHandler("onRealmAdminError", resourceRoot, function(source, requestId, message)
-    iprint("onRealmAdminError:",source, requestId, message)
-end)
+createVehicle(404, 0, 0, 3)
 
 addEventHandler("onRealmAdminConnected", root, function()
     iprint("Starting test provider at", getTickCount())
-    local admin = exports["realmadmin-core"]
 
-    admin:addInterfaceResource("test-provider", "dodaje testowe funkconalności");
+    addInterfaceResource("test-provider", "dodaje testowe funkconalności");
 
-    local requestId, widgetId = admin:overviewAddTextWidget("tytuł", "zawartość asd");
+    removeAllPlayers();
+    removeAllVehicles();
+    
+    local requestId, widgetId = overviewAddTextWidget("tytuł", "przykładowa treść");
     local i = 0;
     setTimer(function()
         i = i + 1;
-        admin:overviewSetWidgetTitle(widgetId, "tytuł "..i);
+        overviewSetWidgetTitle(widgetId, "tytuł "..i);
         --admin:overviewAddTextWidget("tytuł", "zawartość asd");
     end, 100, 3);
 
-    admin:playersAddRowButtonAction("kick", "realmAdminHandleKick")
-    admin:playersAddRowButtonAction("zabierz prawko", "realmAdminHandleTakeLicense")
+    playersAddRowButtonAction("kick", "realmAdminHandleKick")
+    playersAddRowButtonAction("zabierz prawko", "realmAdminHandleTakeLicense")
 
-    admin:playersAddPlayer(fakePlayer1, {
+    playersAddPlayer(fakePlayer1, {
         ["prawko"] = "tak",
     })
-    admin:playersAddPlayer(fakePlayer2, {
+    playersAddPlayer(fakePlayer2, {
         ["prawko"] = "nie",
     })
-    admin:playersAddPlayer(fakePlayer3, {
+    playersAddPlayer(fakePlayer3, {
         ["prawko"] = "zawieszone",
     })
 
@@ -44,33 +44,25 @@ addEventHandler("onRealmAdminConnected", root, function()
     --     })
     -- end, 1000, 0)
 
-    admin:resourcesAddAllResources();
+    resourcesAddAllResources();
 
-    admin:resourcesConfigureDefaultListener();
-    admin:vehiclesSetKinds({
+    resourcesConfigureDefaultListener();
+    
+    vehiclesSetKinds({
         [0] = "domyślny"
     });
-    admin:vehiclesAddAllVehicles(nil, 0);
-
-    local count = 0;
-    setTimer(function()
-        count = count + 1;
-        admin:statisticsPlayerCountReport(count);
-    end, 1000, 10)
+    vehiclesAddAllVehicles(nil, 0);
 end)
 
 addCommandHandler("add", function()
-    local admin = exports["realmadmin-core"];
-    admin:playersAddCustomColumn(
-    {
+    playersAddCustomColumn({
         ["key"] = "prawko",
         ["name"] = "Prawo jazdy",
     })
 end)
 
 addCommandHandler("remove", function()
-    local admin = exports["realmadmin-core"];
-    admin:playersRemoveCustomColumn("prawko")
+    playersRemoveCustomColumn("prawko")
 end)
 
 addEvent("realmAdminHandleKick")

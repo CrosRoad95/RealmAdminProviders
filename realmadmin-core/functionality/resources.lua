@@ -3,14 +3,28 @@ local isDefaultListenerConfigured = false;
 local function getResourceDescription(resource, source)
     verifyIsAddedInterface();
 
+    local exports = {}
+    local meta = xmlLoadFile(":"..getResourceName(resource).."/meta.xml", true);
+    for i,node in ipairs(xmlNodeGetChildren(meta))do
+        local name = xmlNodeGetName(node)
+        if(name == "export")then
+            table.insert(exports, {
+                name = xmlNodeGetAttribute(node, "function"),
+                type = xmlNodeGetAttribute(node, "type")
+            })
+        end
+    end
+    xmlUnloadFile(meta)
+
+    
     local resourceDescription = {
         name = getResourceName(resource),
         organizationalPath = getResourceOrganizationalPath(resource),
         state = getResourceState(resource),
         lastFailureReason = getResourceLoadFailureReason(resource),
-        exports = getResourceExportedFunctions(resource),
+        exports = exports,
         commands = getCommandHandlers(resource),
-        infoType = getResourceInfo(resource, "type") or "-",
+        infoType = getResourceInfo(resource, "type") or "unknown",
         source = getResourceName(source),
         requestId = 0,
     };
@@ -87,13 +101,22 @@ function resourcesConfigureDefaultListener()
         return false;
     end
     isDefaultListenerConfigured = true;
-    addEventHandler("onResourceStart", root, function(resource)
+    
+    local function handleResourceStart(resource)
         resourcesSetResourceState(resource, "running", sourceResource)
-    end);
+    end
 
-    addEventHandler("onResourceStop", root, function(resource)
+    local function handleResourceStop(resource)
+        if(resource == sourceResource)then
+            removeEventHandler("onResourceStart", root, handleResourceStart, true, "high");
+            removeEventHandler("onResourceStop", root, handleResourceStop, true, "high");
+            return;
+        end
         resourcesSetResourceState(resource, "loaded", sourceResource)
-    end);
+    end
+
+    addEventHandler("onResourceStart", root, handleResourceStart, true, "high");
+    addEventHandler("onResourceStop", root, handleResourceStop, true, "high");
 
     return true;
 end

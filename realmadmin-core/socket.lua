@@ -1,6 +1,6 @@
 -- https://github.com/dotnet/aspnetcore/blob/main/src/SignalR/docs/specs/HubProtocol.md
 
-local version = 1;
+local version = 4;
 local state = "closed"; -- Default state
 local connectionEstablished = false;
 local isDuringHandshake = false;
@@ -50,6 +50,7 @@ addEvent("onConnectioneEstablished");
 addEvent("onRealmAdminConnected");
 addEvent("onRealmAdminDisconnected");
 addEvent("onRealmAdminError");
+addEvent("onRealmAdminSuccess");
 
 addEventHandler("onSocketStateChanged", resourceRoot, function(state)
     raprint("Zmieniono stan połączenia na:", state)
@@ -173,9 +174,6 @@ function connect(reconnecting)
         raprint("Zbyt dużo prób połączenia ("..maxAttempts.."), przerwano połączenie. Zresetuj zasób aby spróbować ponownie.");
         return;
     end
-    if(configuration.isDevelopment)then
-        raprint("Włączono tryb developerski")
-    end
     openingSocket = sockOpen(server, serverPort);
     timeoutTimer = setTimer(function()
         if(not reconnecting)then
@@ -294,4 +292,10 @@ addEventHandler("onConnectioneEstablished", resourceRoot, function(state)
         apiKey = configuration.apiKey,
         version = version
     });
+end)
+
+addEventHandler("onResourceStart", resourceRoot, function()
+    if(configuration.isDevelopment)then
+        raprint("Włączono tryb developerski")
+    end
 end)

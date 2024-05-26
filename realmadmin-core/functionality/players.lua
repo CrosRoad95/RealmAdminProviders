@@ -31,6 +31,12 @@ local function getPlayerVersion(player)
     return "<unknown>";
 end
 
+function removeAllPlayers()
+    verifyIsAddedInterface();
+
+    return invokeWrapper("PlayersRemoveAllPlayers", {});
+end
+
 function playersAddRowButtonAction(actionName, callbackEventName)
     verifyIsAddedInterface();
 

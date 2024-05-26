@@ -1,4 +1,4 @@
-local function getVehicleDescription(vehicle)
+local function getVehicleInfo(vehicle)
     return {
         vehicleIdRef = refCache(vehicle),
         model = getElementModel(vehicle),
@@ -7,13 +7,19 @@ local function getVehicleDescription(vehicle)
     }
 end
 
+function removeAllVehicles()
+    verifyIsAddedInterface();
+
+    return invokeWrapper("VehiclesRemoveAllVehicles", {});
+end
+
 function vehiclesAddVehicle(vehicle, data, kindElementDataOrKind)
     if(type(vehicle) ~= "userdata" and getElementType(vehicle) ~= "vehicle")then
         error("Vehicle is invalid.")
     end
     verifyIsAddedInterface();
 
-    local vehicleDescription = getVehicleDescription(vehicle);
+    local vehicleDescription = getVehicleInfo(vehicle);
     vehicleDescription.data = data;
     if(type(kindElementDataOrKind) == "number")then
         vehicleDescription.kind = kindElementDataOrKind;
@@ -28,7 +34,7 @@ function vehiclesAddAllVehicles(data, kindElementDataOrKind)
 
     local vehicles = {}
     for i,vehicle in ipairs(getElementsByType("vehicle"))do
-        local vehicleDescription = getVehicleDescription(vehicle);
+        local vehicleDescription = getVehicleInfo(vehicle);
         vehicleDescription.data = data;
         if(kindElementDataOrKind)then
             if(type(kindElementDataOrKind) == "number")then

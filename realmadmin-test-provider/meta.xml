@@ -1,4 +1,7 @@
 <meta>
+    <info name="RealmAdmin Test provider" author="CrosRoad95" version="0.0.0" type="script" description="Supplies test functionalities to realmadmin"></info>
+
+	<script src="utility.lua" type="server" />
 	<script src="c.lua" type="client" />
 	<script src="s.lua" type="server" />
 	<script src="hub.lua" type="server" />

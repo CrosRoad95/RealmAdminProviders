@@ -9,6 +9,13 @@ function isRegisteredAsInterfaceResource(resource)
     return providers[resource] and true or false;
 end
 
+local function getSourceName(resource)
+    if(providers[resource])then
+        return providers[resource].name;
+    end
+    return false;
+end
+
 function addInterfaceResource(name, description)
     local resource = sourceResource or getThisResource();
     -- if(providers[resource])then
@@ -27,19 +34,19 @@ function addInterfaceResource(name, description)
         description = description
     };
 
-    raprint("Zarejestrowano zasób '"..getResourceName(resource).."' z dostawców funkcjonalności.");
+    raprint("Zarejestrowano zasób '"..getResourceName(resource).."' jako dostawcę funkcjonalności.");
     
     local name = name;
 
     addEventHandler("onResourceStop", getResourceRootElement(resource), function(_)
         if(providers[resource])then
+            invokeWrapper("RemoveProvider", {
+                name = name
+            }, resource)
             raprint("Odrejestrowano zasób '"..getResourceName(resource).."' z dostawców funkcjonalności.");
             providers[resource] = nil;
-            return invokeWrapper("RemoveProvider", {
-                name = name
-            }, resource);
         end
-    end);
+    end, true, "low");
     
     return invokeWrapper("AddProvider", {
         resource = getResourceName(resource),
@@ -77,7 +84,7 @@ function generateRequestId()
 end
 
 function raprint(...)
-    print("[RealmAdmin]", ...);
+    print("[RealmAdmin] "..table.concat({...}, " "));
 end
 
 function refCache(userdata)
@@ -106,10 +113,23 @@ function isSystemCaller(id)
 end
 
 function invokeWrapper(target, model, source)
-    model.source = getResourceName(source or sourceResource or getThisResource());
+    if(target == "Authenticate")then
+        model.source = "";
+    else
+        local sourceResource = source or sourceResource or getThisResource();
+        local source = getSourceName(source or sourceResource or getThisResource());
+        if(not source)then
+            error("Failed to call '"..tostring(target).."' because "..getResourceName(sourceResource).." is not registered as realmadmin provider.");
+        end
+        model.source = source;
+    end
     model.requestId = generateRequestId();
     invoke(target, model);
     return model.requestId;
+end
+
+function isDevelopment()
+    return configuration.isDevelopment and true or false;
 end
 
 function handleResourceStarted()
