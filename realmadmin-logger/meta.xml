@@ -1,0 +1,5 @@
+<meta>
+    <info name="RealmAdmin Logger" author="CrosRoad95" version="0.0.0" type="script" description="Basic logger of realm admin usage."></info>
+
+	<script src="s.lua" type="server" />
+</meta>
